@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Pool;
 using System.Collections.Generic;
 
 public class ItemFactory : MonoBehaviour, IItemFactory
@@ -9,13 +8,15 @@ public class ItemFactory : MonoBehaviour, IItemFactory
     {
         public EItemType type;
         public GameObject prefab;
+        public int initCount = 5;
     }
 
     [Header("Prefab Registration")]
     [SerializeField] private List<ItemPrefabEntry> m_itemPrefabList;
 
-    private Dictionary<EItemType, GameObject> m_prefabDic;
-    private Dictionary<EItemType, IObjectPool<IItem>> m_poolDic;
+    private Transform m_poolRoot;
+
+    private Dictionary<EItemType, IItem> m_prefabDic;
 
     void Awake()
     {
@@ -24,63 +25,67 @@ public class ItemFactory : MonoBehaviour, IItemFactory
 
     private void InitializeFactory()
     {
-        m_prefabDic = new Dictionary<EItemType, GameObject>();
-        m_poolDic = new Dictionary<EItemType, IObjectPool<IItem>>();
+        if (Managers.Pool == null)
+        {
+            Debug.LogError("[ItemFactory] Managers.Pool이 초기화되지 않았습니다. 씬에 Managers 프리팹이 있는지 확인하세요.");
+            this.enabled = false;
+            return;
+        }
+
+        if (m_poolRoot == null)
+        {
+            m_poolRoot = Managers.Pool.transform;
+        }
+
+        m_prefabDic = new Dictionary<EItemType, IItem>();
 
         foreach (var entry in m_itemPrefabList)
         {
-            if (entry.prefab.GetComponent<IItem>() == null)
+            IItem itemComponent = entry.prefab.GetComponent<IItem>();
+            if (itemComponent == null)
             {
-                Debug.LogError($"[Factory] {entry.type} 프리팹에 IEnemy가 없습니다!");
+                Debug.LogError($"[Factory] {entry.type} 프리팹에 IItem이 없습니다!");
                 continue;
             }
-            m_prefabDic[entry.type] = entry.prefab;
-        }
 
-        foreach (EItemType type in m_prefabDic.Keys)
-        {
-            m_poolDic[type] = new ObjectPool<IItem>(
-                createFunc: () => CreateNewItem(type),
-                actionOnGet: (enemy) => OnGetFromPool(enemy),
-                actionOnRelease: (enemy) => OnReleaseToPool(enemy),
-                actionOnDestroy: (enemy) => OnDestroyFromPool(enemy),
-                maxSize: 30
-            );
+            MonoBehaviour itemMono = itemComponent as MonoBehaviour;
+            if (itemMono == null)
+            {
+                Debug.LogError($"[Factory] {entry.type}의 IItem 컴포넌트가 MonoBehaviour가 아닙니다!");
+                continue;
+            }
+
+            Managers.Pool.CreatePool(itemMono, entry.initCount, m_poolRoot);
+            m_prefabDic[entry.type] = itemComponent;
         }
     }
 
     public IItem GetItem(EItemType type)
     {
-        if (!m_poolDic.ContainsKey(type))
+        if (!m_prefabDic.TryGetValue(type, out IItem prefab))
         {
-            Debug.LogError($"[Factory] {type} 풀이 없습니다.");
+            Debug.LogError($"[Factory] {type}에 해당하는 프리팹이 등록되지 않았습니다.");
             return null;
         }
-        return m_poolDic[type].Get();
-    }
 
-    private IItem CreateNewItem(EItemType type)
-    {
-        GameObject newInstance = Instantiate(m_prefabDic[type]);
-        IItem item = newInstance.GetComponent<IItem>();
+        MonoBehaviour prefabMono = prefab as MonoBehaviour;
+        IItem newItem = Managers.Pool.GetFromPool(prefabMono) as IItem;
 
-        item.SetReleaseAction((e) => m_poolDic[type].Release(e));
+        if (newItem == null)
+        {
+            Debug.LogError($"[Factory] PoolManager에서 {type} 타입의 아이템을 가져오는데 실패했습니다.");
+            return null;
+        }
 
-        return item;
-    }
+        newItem.SetReleaseAction((itemToReturn) =>
+        {
+            MonoBehaviour itemMono = itemToReturn as MonoBehaviour;
+            if (itemMono != null)
+            {
+                Managers.Pool.ReturnToPool(itemMono);
+            }
+        });
 
-    private void OnGetFromPool(IItem item)
-    {
-        // Spawner가 Initialize()에서 SetActive(true)를 할 것임
-    }
-
-    private void OnReleaseToPool(IItem item)
-    {
-        item.GetGameObject().SetActive(false);
-    }
-
-    private void OnDestroyFromPool(IItem item)
-    {
-        Destroy(item.GetGameObject());
+        return newItem;
     }
 }

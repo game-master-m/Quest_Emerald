@@ -7,7 +7,7 @@ public class ItemGold : MonoBehaviour, IItem
 
     private Action<IItem> m_releaseAction;
 
-    [SerializeField] private IItemEventChannelSO onTouchGold;
+    [SerializeField] private IItemEventChannelSO onTouchItem;
 
 
     public void Initialize(Vector3 position, Quaternion rotation)
@@ -34,5 +34,13 @@ public class ItemGold : MonoBehaviour, IItem
     public void Touch()
     {
         //È¹µæ
+        onTouchItem.Raise(this);
+        m_releaseAction?.Invoke(this);
+        //GameManager¿¡ Gold È¹µæ Ãß°¡ÇØ¾ß ÇÔ
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer != (int)ELayerName.Player) return;
+        Touch();
     }
 }
