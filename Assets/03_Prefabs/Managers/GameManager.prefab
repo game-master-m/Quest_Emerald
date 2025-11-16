@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3974301307431182802
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6753302564430697626}
+  - component: {fileID: 6260938620411804031}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6753302564430697626
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3974301307431182802}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.69393, y: 0.36411855, z: -37.328228}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6260938620411804031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3974301307431182802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0733e7f50476d4543a0e50d9cb024176, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameData: {fileID: 11400000, guid: 158acf077a2b4314f9f964763e100cd9, type: 2}
+  onPauseRequest: {fileID: 11400000, guid: 5152fc42829d21e4ba11beb55619b158, type: 2}
+  onTouchItem: {fileID: 11400000, guid: 5d50453f7a633dd409a8482c318f5cd5, type: 2}
+  onPlayerDie: {fileID: 11400000, guid: 526b4c4a74d63c24e958591478da4964, type: 2}
+  onSuccess: {fileID: 11400000, guid: e24a9a830d7f37a4c99ad6207bd710f2, type: 2}
+  onGoldTouch: {fileID: 11400000, guid: a6b0cd0ef6588c84fad1509f5c1f878c, type: 2}
+  onRedBallTouch: {fileID: 11400000, guid: aa71796b89ebebd4d8199a687a965c85, type: 2}
+  onGreenBallTouch: {fileID: 11400000, guid: a68b9e330040da443b52de8184ba5f85, type: 2}
+  onBlueBallTouch: {fileID: 11400000, guid: 71bb019d9681733439d8f63fdc6481b1, type: 2}
+  onBlackBallTouch: {fileID: 11400000, guid: debc66441687e274f92c3149a7c8f337, type: 2}
+  onFakeBlackBallTouch: {fileID: 11400000, guid: e9db267d4fbd1564cb83d144f7534b94,
+    type: 2}
+  onWallTouch: {fileID: 11400000, guid: c641d3bbba920714ca6412d424fc6ce9, type: 2}
+  onInitGoldText: {fileID: 11400000, guid: 2af68676dc14ef047b541aa35e8f3b4a, type: 2}
+  onGameStart: {fileID: 11400000, guid: 49d9591cb3e6bdb4394eb16d1b71fa8b, type: 2}
+  onGameOver: {fileID: 11400000, guid: fc2499a11bb3b034591d4acf73a5f84e, type: 2}
+  onGameSuccess: {fileID: 11400000, guid: 041cb802331cf1f48a23be518de89ee6, type: 2}
