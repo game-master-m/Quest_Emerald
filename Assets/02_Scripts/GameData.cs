@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameData", menuName = "Data/GameData")]
 public class GameData : ScriptableObject
 {
-    [SerializeField] private float bestTime;
+    [SerializeField] private float bestTime = 300.0f;
     [SerializeField] private int gold;
 
     public float BestTime => bestTime;

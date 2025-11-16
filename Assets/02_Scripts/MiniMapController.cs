@@ -71,7 +71,6 @@ public class MinimapController : MonoBehaviour
 
         Vector2 uiPos = ConvertWorldToMinimapPos(playerTransform.position);
         playerIconRect.anchoredPosition = uiPos;
-        Debug.Log(uiPos);
         float playerYRotation = playerTransform.eulerAngles.y;
         playerIconRect.localEulerAngles = new Vector3(0, 0, -playerYRotation + 180.0f);
     }
@@ -113,7 +112,7 @@ public class MinimapController : MonoBehaviour
         Vector3 relativePos = worldPos - m_spawnerCenterPos;
 
         float percentX = relativePos.x / m_spawnAreaDimensions.x;
-        float percentZ = relativePos.z / m_spawnAreaDimensions.y; // 3D의 Z축이 2D의 Y축
+        float percentZ = relativePos.z / m_spawnAreaDimensions.y;
 
         float uiX = Mathf.Clamp(percentX * (m_mapDimensions.x / 2), -m_mapDimensions.x / 2, m_mapDimensions.x / 2);
         float uiY = Mathf.Clamp(percentZ * (m_mapDimensions.y / 2), -m_mapDimensions.y / 2, m_mapDimensions.y / 2);

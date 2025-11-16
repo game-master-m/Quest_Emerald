@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1963058c2ea86324691f80f5f02bdd8d, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  bestTime: 0
+  bestTime: 300
   gold: 0

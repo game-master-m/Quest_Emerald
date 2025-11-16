@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     private readonly string playSceneName = "PlayScene";
-    //private readonly string lobbySceneName = "LobbyScene";
 
     [Header("데이터 참조")]
     [SerializeField] private GameData gameData;
@@ -25,11 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO onWallTouch;
     [SerializeField] private IntEventChannelSO onInitGoldText;
     [SerializeField] private VoidEventChannelSO onGameStart;
-    //[SerializeField] private VoidEventChannelSO onGamePause;
-    //[SerializeField] private VoidEventChannelSO onGameResume;
     [SerializeField] private VoidEventChannelSO onGameOver;
     [SerializeField] private FloatEventChannelSO onGameSuccess;
-    //[SerializeField] private VoidEventChannelSO onReturnToLobby;        //PlayerStatManager 가 구독
 
     private bool isPause = false;
     private bool isGameOver = false;
@@ -37,11 +33,11 @@ public class GameManager : MonoBehaviour
     private readonly int getGoldAmount = 5;
     private void Start()
     {
-        float bestTime = PlayerPrefs.GetFloat("BestTime", gameData.BestTime);
+        float bestTime = PlayerPrefs.GetFloat("BestTime", 300.0f);
         int gold = PlayerPrefs.GetInt("Gold", gameData.Gold);
         gameData.SetGold(gold);
         gameData.SetBestTime(bestTime);
-
+        onInitGoldText.Raise(gameData.Gold);
         Managers.Sound.PlayBGM(EBgmName.Bgm, true);
 
     }
@@ -154,6 +150,6 @@ public class GameManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         PlayerPrefs.SetFloat("BestTime", gameData.BestTime);
-        PlayerPrefs.GetInt("Gold", gameData.Gold);
+        PlayerPrefs.SetInt("Gold", gameData.Gold);
     }
 }

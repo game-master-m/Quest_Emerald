@@ -14,7 +14,7 @@ public class ItemSpawner : MonoBehaviour
     {
         public EItemType type;
         public int maxAliveCount;
-        public float itemRadius = 1.0f;
+        public float itemRadius = 2.0f;
     }
 
     [Header("Spawn Rules")]
@@ -49,8 +49,6 @@ public class ItemSpawner : MonoBehaviour
         m_factory = m_factoryProvider.GetComponent<IItemFactory>();
         if (m_factory == null)
         {
-            Debug.LogError("IItemFactory가 주입되지 않았습니다!", this);
-            this.enabled = false;
             return;
         }
 
@@ -185,8 +183,9 @@ public class ItemSpawner : MonoBehaviour
                 if (m_ruleMap.TryGetValue(activeItem.Type, out var activeItemRule))
                 {
                     float requiredDistance = candidateRadius + activeItemRule.itemRadius;
-                    float currentDistance = Vector3.Distance(
-                        candidatePos, activeItem.GetGameObject().transform.position);
+                    float currentDistance = Vector2.Distance(
+                        new Vector2(candidatePos.x, candidatePos.z),
+                        new Vector2(activeItem.GetGameObject().transform.position.x, activeItem.GetGameObject().transform.position.z));
 
                     if (currentDistance < requiredDistance)
                     {
