@@ -9,7 +9,7 @@ public interface IItem
 
     void SetReleaseAction(Action<IItem> releaseAction);
 
-    void MousePointed();
+    string GetNameWhenMousePointed();
     void Touch();
     GameObject GetGameObject();
 }

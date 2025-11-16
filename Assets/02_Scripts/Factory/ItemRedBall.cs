@@ -26,9 +26,9 @@ public class ItemRedBall : MonoBehaviour, IItem
         return this.gameObject;
     }
 
-    public void MousePointed()
+    public string GetNameWhenMousePointed()
     {
-        //정보 출력
+        return "Red Ball";
     }
 
     public void Touch()

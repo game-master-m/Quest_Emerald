@@ -5,7 +5,7 @@ public class Managers : MonoBehaviour
     public static Managers Instance { get; private set; }
     [Header("매니저 프리팹")]
     //[SerializeField] private GameObject dataManagerPrefab;
-    //[SerializeField] private GameObject soundManagerPrefab;
+    [SerializeField] private GameObject soundManagerPrefab;
     [SerializeField] private GameObject poolManagerPrefab;
     [SerializeField] private GameObject inputManagerPrefab;
     [SerializeField] private GameObject gameManagerPrefab;
@@ -13,7 +13,7 @@ public class Managers : MonoBehaviour
     //[SerializeField] private GameObject playerStatsManagerPrefab;
 
     //public static DataManager Data { get; private set; }
-    //public static SoundManager Sound { get; private set; }
+    public static SoundManager Sound { get; private set; }
     public static PoolManager Pool { get; private set; }
     public static InputManager Input { get; private set; }
     public static GameManager Game { get; private set; }
@@ -35,11 +35,11 @@ public class Managers : MonoBehaviour
         //    GameObject dataGo = Instantiate(dataManagerPrefab, transform);
         //    Data = dataGo.GetComponent<DataManager>();
         //}
-        //if (soundManagerPrefab != null)
-        //{
-        //    GameObject dataGo = Instantiate(soundManagerPrefab, transform);
-        //    Sound = dataGo.GetComponent<SoundManager>();
-        //}
+        if (soundManagerPrefab != null)
+        {
+            GameObject dataGo = Instantiate(soundManagerPrefab, transform);
+            Sound = dataGo.GetComponent<SoundManager>();
+        }
         if (poolManagerPrefab != null)
         {
             GameObject poolGo = Instantiate(poolManagerPrefab, transform);

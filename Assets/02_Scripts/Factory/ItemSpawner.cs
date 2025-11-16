@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class ItemSpawner : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class ItemSpawner : MonoBehaviour
 
     [Header("이벤트 구독")]
     [SerializeField] private IItemEventChannelSO onTouchItem;
+    [SerializeField] private VoidEventChannelSO onBlackBallRequest;
 
     private Dictionary<EItemType, List<IItem>> m_activeItems = new Dictionary<EItemType, List<IItem>>();
     private Dictionary<EItemType, ItemSpawnRule> m_ruleMap = new Dictionary<EItemType, ItemSpawnRule>();
@@ -32,8 +34,18 @@ public class ItemSpawner : MonoBehaviour
     private float m_timer;
     private List<ItemSpawnRule> m_availableRulesCache = new List<ItemSpawnRule>();
 
+    private ItemSpawnRule[] blackBallSpawnRules = new ItemSpawnRule[2];
+
+    private bool isBlackSpawn = false;
+
+    public Vector2 SpawnAreaRange => m_spawnAreaRange;
+    public Dictionary<EItemType, List<IItem>> ActiveItems => m_activeItems;
+    public Action<IItem> OnItemSpawned;
     void Awake()
     {
+        blackBallSpawnRules[0] = new ItemSpawnRule();
+        blackBallSpawnRules[1] = new ItemSpawnRule();
+
         m_factory = m_factoryProvider.GetComponent<IItemFactory>();
         if (m_factory == null)
         {
@@ -51,19 +63,70 @@ public class ItemSpawner : MonoBehaviour
         }
 
         onTouchItem.OnEvent += HandleItemCollected;
+        onBlackBallRequest.OnEvent += BlackBallSpawn;
     }
 
     void OnDestroy()
     {
         onTouchItem.OnEvent -= HandleItemCollected;
+        onBlackBallRequest.OnEvent -= BlackBallSpawn;
+
+        ReturnToPoolAll();
+    }
+
+    private void ReturnToPoolAll()
+    {
+        if (m_factory != null && m_activeItems != null)
+        {
+            foreach (var itemList in m_activeItems.Values)
+            {
+                foreach (var item in itemList.ToList())
+                {
+                    m_factory.ReturnItem(item);
+                }
+            }
+            m_activeItems.Clear();
+        }
+    }
+
+    private void BlackBallSpawn()
+    {
+        if (isBlackSpawn) return;
+        isBlackSpawn = true;
+        blackBallSpawnRules[0].type = EItemType.Black;
+        blackBallSpawnRules[1].type = EItemType.FakeBlack;
+        m_activeItems[EItemType.Black] = new List<IItem>();
+        m_activeItems[EItemType.FakeBlack] = new List<IItem>();
+        m_ruleMap[EItemType.Black] = blackBallSpawnRules[0];
+        m_ruleMap[EItemType.FakeBlack] = blackBallSpawnRules[1];
+
+        foreach (var rule in blackBallSpawnRules)
+        {
+            rule.itemRadius = 1;
+            rule.maxAliveCount = 1;
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            if (m_activeItems[EItemType.Black].Count != 0) break;
+            FindSpotAndSpawn(blackBallSpawnRules[0]);
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            if (m_activeItems[EItemType.FakeBlack].Count != 0) break;
+            FindSpotAndSpawn(blackBallSpawnRules[1]);
+        }
+        m_spawnRules.Add(m_ruleMap[EItemType.Black]);
+        m_spawnRules.Add(m_ruleMap[EItemType.FakeBlack]);
     }
 
     private void HandleItemCollected(IItem item)
     {
+        if (item.Type == EItemType.Wall || item.Type == EItemType.Stepper) return;
         if (m_activeItems.TryGetValue(item.Type, out var itemList))
         {
             itemList.Remove(item);
         }
+
     }
 
     void Update()
@@ -89,7 +152,7 @@ public class ItemSpawner : MonoBehaviour
 
         if (m_availableRulesCache.Count > 0)
         {
-            ItemSpawnRule ruleToSpawn = m_availableRulesCache[Random.Range(0, m_availableRulesCache.Count)];
+            ItemSpawnRule ruleToSpawn = m_availableRulesCache[UnityEngine.Random.Range(0, m_availableRulesCache.Count)];
             FindSpotAndSpawn(ruleToSpawn);
         }
     }
@@ -107,6 +170,7 @@ public class ItemSpawner : MonoBehaviour
 
                 newItem.Initialize(randomPos, Quaternion.identity);
                 m_activeItems[rule.type].Add(newItem);
+                OnItemSpawned?.Invoke(newItem);
                 return;
             }
         }
@@ -136,8 +200,8 @@ public class ItemSpawner : MonoBehaviour
 
     Vector3 GetRandomWorldPosition()
     {
-        float xPoint = Random.Range(-m_spawnAreaRange.x, m_spawnAreaRange.x);
-        float zPoint = Random.Range(-m_spawnAreaRange.y, m_spawnAreaRange.y);
+        float xPoint = UnityEngine.Random.Range(-m_spawnAreaRange.x, m_spawnAreaRange.x);
+        float zPoint = UnityEngine.Random.Range(-m_spawnAreaRange.y, m_spawnAreaRange.y);
         Vector3 spawnPosition = transform.position + new Vector3(xPoint, 0, zPoint);
         spawnPosition.y = transform.position.y + m_yOffset;
         return spawnPosition;

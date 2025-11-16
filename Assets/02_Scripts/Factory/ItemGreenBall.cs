@@ -26,9 +26,9 @@ public class ItemGreenBall : MonoBehaviour, IItem
         return this.gameObject;
     }
 
-    public void MousePointed()
+    public string GetNameWhenMousePointed()
     {
-        //정보 출력
+        return "Green Ball";
     }
 
     public void Touch()
@@ -40,7 +40,6 @@ public class ItemGreenBall : MonoBehaviour, IItem
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(LayerManager.GetLayerMask(ELayerName.Player));
         if (other.gameObject.layer != (int)ELayerName.Player) return;
         Touch();
     }

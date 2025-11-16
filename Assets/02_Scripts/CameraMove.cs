@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class CameraMove : MonoBehaviour
@@ -12,13 +13,22 @@ public class CameraMove : MonoBehaviour
     [Header("마우스 컨트롤 설정")]
     [SerializeField] private float mouseSensitivityX = 4.0f;
     [SerializeField] private float mouseSensitivityY = 2.0f;
-
     [SerializeField] private float minVerticalAngle = -30.0f;
     [SerializeField] private float maxVerticalAngle = 30.0f;
 
+    [Header("정보 출력")]
+    [SerializeField] private Transform rootItemDisc;
+    [SerializeField] private TextMeshProUGUI itemDiscText;
+    [SerializeField] private Vector3 rayOffset = new Vector3(0.0f, 2.0f, 0.0f);
+    [SerializeField] private float rayDistance = 5.0f;
     private float m_currentYRotation = 0.0f;
     private float m_currentXRotation = 0.0f;
 
+    [Header("이벤트 구독")]
+    [SerializeField] private VoidEventChannelSO onGameOver;
+    [SerializeField] private FloatEventChannelSO onGameSuccess;
+
+    private bool isPlaying = false;
     void Start()
     {
         if (target == null)
@@ -31,22 +41,70 @@ public class CameraMove : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        rootItemDisc.gameObject.SetActive(false);
+
+        isPlaying = true;
+    }
+    private void OnEnable()
+    {
+        onGameOver.OnEvent += HandleGameOver;
+        onGameSuccess.OnEvent += HandleGameSuccess;
+    }
+    private void OnDisable()
+    {
+        onGameOver.OnEvent -= HandleGameOver;
+        onGameSuccess.OnEvent -= HandleGameSuccess;
+    }
+    private void HandleGameSuccess(float garbage)
+    {
+        isPlaying = false;
+        rootItemDisc.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+    private void HandleGameOver()
+    {
+        isPlaying = false;
+        rootItemDisc.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
+        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked && isPlaying)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && isPlaying)
         {
             Cursor.lockState = CursorLockMode.None;
+            rootItemDisc.gameObject.SetActive(false);
             Cursor.visible = true;
         }
-    }
 
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            CheckItemDisc();
+        }
+    }
+    private void CheckItemDisc()
+    {
+        Ray ray = new Ray(target.position + rayOffset, transform.forward);
+        RaycastHit hitInfo;
+
+        if (Physics.Raycast(ray, out hitInfo, rayDistance, LayerManager.GetLayerMask(ELayerName.Item)))
+        {
+            rootItemDisc.gameObject.SetActive(true);
+            IItem hitItem = hitInfo.collider.GetComponent<IItem>();
+            itemDiscText.text = hitItem.GetNameWhenMousePointed();
+        }
+        else
+        {
+            rootItemDisc.gameObject.SetActive(false);
+        }
+    }
     void LateUpdate()
     {
         if (target == null) return;
@@ -70,5 +128,10 @@ public class CameraMove : MonoBehaviour
         Quaternion smoothedRotation = Quaternion.Slerp(transform.rotation, desiredRotation, rotationSmoothSpeed * Time.deltaTime);
 
         transform.rotation = smoothedRotation;
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(target.position + rayOffset, transform.forward * rayDistance);
     }
 }

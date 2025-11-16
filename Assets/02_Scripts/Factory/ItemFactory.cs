@@ -18,7 +18,7 @@ public class ItemFactory : MonoBehaviour, IItemFactory
 
     private Dictionary<EItemType, IItem> m_prefabDic;
 
-    void Awake()
+    void Start()
     {
         InitializeFactory();
     }
@@ -87,5 +87,19 @@ public class ItemFactory : MonoBehaviour, IItemFactory
         });
 
         return newItem;
+    }
+
+    public void ReturnItem(IItem item)
+    {
+        MonoBehaviour itemInstance = item as MonoBehaviour;
+
+        if (itemInstance != null && Managers.Pool != null)
+        {
+            Managers.Pool.ReturnToPool(itemInstance);
+        }
+        else if (itemInstance != null)
+        {
+            Destroy(itemInstance.gameObject);
+        }
     }
 }

@@ -26,9 +26,9 @@ public class ItemGold : MonoBehaviour, IItem
         return this.gameObject;
     }
 
-    public void MousePointed()
+    public string GetNameWhenMousePointed()
     {
-        //정보 출력
+        return "Gold +5";
     }
 
     public void Touch()

@@ -19,7 +19,7 @@ public class InputManager : MonoBehaviour
     //이벤트
     //[Header("이벤트 발행")]
     //[SerializeField] private IntEventChannelSO onUseQuickSlotRequest;
-    //[SerializeField] private VoidEventChannelSO onPauseRequest;
+    [SerializeField] private VoidEventChannelSO onPauseRequest;
     private void Awake()
     {
         if (Instance == null)
@@ -35,7 +35,7 @@ public class InputManager : MonoBehaviour
     private void Update()
     {
         IsJumpPressed = Input.GetKeyDown(KeyCode.Space);
-        IsJumpPressing = Input.GetKey(KeyCode.Space);
+        //IsJumpPressing = Input.GetKey(KeyCode.Space);
         IsColorChangeLeftPressed = Input.GetKeyDown(KeyCode.LeftArrow);
         IsColorChangeRightPressed = Input.GetKeyDown(KeyCode.RightArrow);
 
@@ -45,7 +45,7 @@ public class InputManager : MonoBehaviour
         //if (Input.GetKeyDown(KeyCode.Alpha2)) onUseQuickSlotRequest?.Raised(1);
         //if (Input.GetKeyDown(KeyCode.Alpha3)) onUseQuickSlotRequest?.Raised(2);
 
-        //if (Input.GetKeyDown(KeyCode.Escape)) onPauseRequest?.Raised();
+        if (Input.GetKeyDown(KeyCode.Escape)) onPauseRequest?.Raise();
 
         IsReLoadPressed = Input.GetKeyDown(KeyCode.R);
     }
